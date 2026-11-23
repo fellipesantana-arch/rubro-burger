@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rubro Burger</title>
+<meta name="description" content="Rubro Burger: cardápio de fast food com promoções, busca, carrossel e acessibilidade.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: cabeçalho fixo, carrossel de lançamentos, cardápio com busca e abas, cores/WCAG, contato, rodapé. Vermelho #D32F2F, branco #FFFFFF, preto #121212. */
+:root{
+  --bg:#FFFFFF; --surface:#F6F4F4; --tile:#FBEAEA; --fg:#121212; --muted:#5A5252;
+  --line:#DDD6D6; --accent:#D32F2F; --accent-text:#C62828; --on-accent:#FFFFFF; --focus:#121212;
+  --font-display:"Anton","Impact","Arial Narrow",sans-serif;
+  --font-body:"Inter",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --shadow:0 6px 20px rgba(18,18,18,.10);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#121212;--surface:#1D1B1B;--tile:#2A1C1C;--fg:#FFFFFF;--muted:#BDB4B4;--line:#3A3434;--accent-text:#FF7B7B;--focus:#FFFFFF;--shadow:0 6px 20px rgba(0,0,0,.5);color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#121212;--surface:#1D1B1B;--tile:#2A1C1C;--fg:#FFFFFF;--muted:#BDB4B4;--line:#3A3434;--accent-text:#FF7B7B;--focus:#FFFFFF;--shadow:0 6px 20px rgba(0,0,0,.5);color-scheme:dark}
+:root[data-contrast="high"]{--muted:var(--fg);--line:var(--fg);--accent:#B71C1C}
+:root[data-size="lg"]{font-size:112.5%} :root[data-size="xl"]{font-size:125%}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:5rem}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:1rem;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+:root[data-motion="off"] *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:4px}
+a{color:var(--accent-text)}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;letter-spacing:.02em;line-height:1.05;text-wrap:balance;margin:0;text-transform:uppercase}
+h2{font-size:clamp(2rem,5vw,3rem)} h3{font-size:1.35rem}
+p{margin:0}
+.wrap{max-width:1160px;margin:0 auto}
+.skip{position:absolute;left:-999px;top:0;background:var(--accent);color:var(--on-accent);padding:.6rem 1rem;z-index:100}
+.skip:focus{left:8px;top:8px}
+.btn{font:600 1rem var(--font-body);display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:.55rem 1.2rem;border-radius:8px;border:2px solid var(--accent);background:var(--accent);color:var(--on-accent);cursor:pointer;text-decoration:none;transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.sm{min-height:44px;padding:.4rem .9rem;font-size:.95rem}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--bg);border-bottom:1px solid var(--line);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:0 max(16px,env(safe-area-inset-left,0px))}
+.bar{max-width:1160px;margin:0 auto;display:flex;align-items:center;gap:1rem;min-height:68px;flex-wrap:wrap;padding-block:.4rem}
+.logo{font-family:var(--font-display);font-size:1.7rem;letter-spacing:.04em;text-decoration:none;color:var(--fg);display:flex;align-items:center;gap:.5rem;text-transform:uppercase}
+.logo i{display:inline-block;width:14px;height:14px;background:var(--accent);border-radius:3px;transform:rotate(45deg)}
+nav{display:flex;gap:.2rem;margin-left:auto;flex-wrap:wrap}
+nav a{color:var(--fg);text-decoration:none;font-weight:500;padding:.5rem .7rem;border-radius:6px;min-height:44px;display:inline-flex;align-items:center}
+nav a:hover{background:var(--surface);color:var(--accent-text)}
+.tools{display:flex;gap:.5rem;align-items:center}
+.cartpill{font-weight:600;font-size:.9rem;padding:.35rem .7rem;border-radius:99px;background:var(--surface);border:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* accessibility panel */
+.a11y{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:100%;width:min(340px,calc(100vw - 32px));background:var(--bg);border:2px solid var(--fg);border-radius:12px;padding:1rem;box-shadow:var(--shadow);display:grid;gap:1rem}
+.a11y h2{font-size:1.4rem}
+.seg{display:flex;gap:.4rem;flex-wrap:wrap}
+.seg button{flex:1;min-width:0;min-height:44px;font:600 .95rem var(--font-body);background:var(--surface);color:var(--fg);border:2px solid var(--line);border-radius:8px;cursor:pointer;padding:.3rem .5rem}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.a11y label.row{display:flex;justify-content:space-between;align-items:center;gap:1rem;font-weight:500}
+.a11y small{color:var(--muted);display:block;font-weight:600;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.06em;font-size:.75rem}
+.pos{position:relative}
+[hidden]{display:none!important}
+
+/* carousel */
+.carousel{margin-top:1.5rem;position:relative;border-radius:16px;overflow:hidden}
+.track{display:flex;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.slide{min-width:100%;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:1rem;padding:clamp(1.5rem,4vw,3.5rem) clamp(1.5rem,4vw,4rem) clamp(4rem,6vw,5rem);color:#fff;min-height:380px}
+.slide:nth-child(1){background:#D32F2F}.slide:nth-child(2){background:#121212;border:1px solid #3A3434}.slide:nth-child(3){background:#A91F1F}
+.slide .tag{display:inline-block;font-weight:700;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;background:#fff;color:#121212;padding:.25rem .6rem;border-radius:4px;margin-bottom:1rem}
+.slide h1{font-size:clamp(2.6rem,7vw,5rem);margin-bottom:1rem}
+.slide p{max-width:42ch;margin-bottom:1.5rem;font-size:1.1rem}
+.slide .btn{background:#fff;color:#121212;border-color:#fff}
+.slide:nth-child(2) .btn{background:#D32F2F;border-color:#D32F2F;color:#fff}
+.slide svg{width:100%;max-width:380px;justify-self:center;filter:drop-shadow(0 14px 18px rgba(0,0,0,.35))}
+.ctrls{position:absolute;left:0;right:0;bottom:1rem;display:flex;justify-content:center;align-items:center;gap:.6rem}
+.ctrls button{min-width:44px;min-height:44px;border-radius:99px;border:2px solid #fff;background:rgba(18,18,18,.55);color:#fff;font:700 1rem var(--font-body);cursor:pointer}
+.ctrls button:focus-visible{outline-color:#fff}
+.dots{display:flex;gap:.2rem}
+.dots button{min-width:44px;background:transparent;border:0;position:relative}
+.dots button::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px;border-radius:99px;border:2px solid #fff;background:transparent}
+.dots button[aria-current="true"]::after{background:#fff}
+
+/* sections */
+section.s{padding-block:clamp(3rem,7vw,5.5rem)}
+.eyebrow{font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.8rem;color:var(--accent-text);margin-bottom:.6rem}
+.lead{color:var(--muted);max-width:60ch;margin-top:.8rem}
+.menu-tools{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;margin:1.8rem 0 1.4rem}
+.search{flex:1 1 260px;position:relative}
+.search input{width:100%}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--surface);border:2px solid var(--line);border-radius:8px;padding:.65rem .85rem;min-height:44px}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+input[aria-invalid="true"],select[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--accent-text)}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap}
+.tabs button{min-height:44px;font:600 .95rem var(--font-body);padding:.4rem 1rem;border-radius:99px;border:2px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.2rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.card .pic{background:var(--tile);padding:1rem;display:grid;place-items:center;aspect-ratio:10/7}
+.card .pic svg{width:78%;max-width:100%;height:auto}
+.card .body{padding:1.1rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.card .cat{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-text)}
+.card p{color:var(--muted);font-size:.95rem;flex:1}
+.card .foot{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.4rem}
+.price{font-family:var(--font-display);font-size:1.6rem;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.empty{padding:2rem;border:2px dashed var(--line);border-radius:12px;text-align:center;color:var(--muted)}
+
+/* explainer */
+.alt{background:var(--surface);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;margin-top:2rem}
+.sw{background:var(--bg);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
+.sw .chip{height:110px;display:flex;align-items:flex-end;padding:.8rem 1rem;font-weight:700;font-variant-numeric:tabular-nums;border-bottom:1px solid var(--line)}
+.sw .txt{padding:1rem 1.1rem;display:grid;gap:.4rem}
+.sw .txt p{color:var(--muted);font-size:.95rem}
+.tablewrap{overflow-x:auto;margin-top:2rem;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--line);font-size:.95rem}
+th{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.demo{display:inline-block;padding:.15rem .6rem;border-radius:4px;font-weight:700}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:99px;font-size:.8rem;font-weight:700;border:1px solid var(--line)}
+.badge.ok{background:var(--fg);color:var(--bg)}
+.badge.no{color:var(--accent-text);border-color:var(--accent-text)}
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2rem}
+.tips div{border-left:4px solid var(--accent);padding:.2rem 0 .2rem 1rem}
+.tips b{display:block;margin-bottom:.2rem}
+.tips span{color:var(--muted);font-size:.95rem}
+
+/* contact */
+.contact{display:grid;grid-template-columns:1fr 1.2fr;gap:clamp(1.5rem,5vw,4rem);align-items:start}
+form{display:grid;gap:1rem}
+.field{display:grid;gap:.35rem;min-width:0}
+.field label{font-weight:600}
+.err{color:var(--accent-text);font-size:.9rem;font-weight:500;min-height:1.2em}
+.ok-msg{border:2px solid var(--fg);border-radius:10px;padding:1rem;font-weight:500}
+.checks{display:flex;align-items:center;gap:.6rem}
+.checks input{width:22px;height:22px;min-height:0;accent-color:var(--accent)}
+
+/* dialog */
+dialog{border:2px solid var(--fg);border-radius:14px;background:var(--bg);color:var(--fg);padding:1.6rem;width:min(420px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(18,18,18,.65)}
+dialog h2{margin-bottom:.4rem}
+.dhead{display:flex;justify-content:space-between;align-items:start;gap:1rem}
+.x{min-width:44px;min-height:44px;border:2px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font-size:1.2rem;cursor:pointer}
+
+footer{background:#121212;color:#fff;margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:3rem max(16px,env(safe-area-inset-right,0px)) calc(2rem + env(safe-area-inset-bottom,0px));border-top:4px solid #D32F2F}
+footer .cols{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:2rem}
+footer h3{font-size:1.1rem;margin-bottom:.8rem;color:#fff}
+footer a{color:#FFB4B4}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:.4rem}
+footer p,footer li{color:#D8D0D0;font-size:.95rem}
+footer .copy{max-width:1160px;margin:2rem auto 0;padding-top:1.2rem;border-top:1px solid #3A3434;color:#BDB4B4;font-size:.85rem}
+footer :focus-visible{outline-color:#fff}
+.toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:.7rem 1.1rem;border-radius:10px;font-weight:600;z-index:80;max-width:calc(100vw - 32px);box-shadow:var(--shadow)}
+
+@media (max-width:820px){
+  .slide{grid-template-columns:1fr;min-height:0}
+  .slide svg{max-width:240px;order:-1}
+  .contact{grid-template-columns:1fr}
+  footer .cols{grid-template-columns:1fr 1fr}
+  nav{order:5;margin-left:0;width:100%}
+  .tools{margin-left:auto}
+}
+@media (max-width:480px){footer .cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<a class="skip" href="#cardapio">Pular para o conteúdo</a>
+
+<header class="top">
+  <div class="bar pos">
+    <a class="logo" href="#inicio" aria-label="Rubro Burger, início"><i aria-hidden="true"></i>Rubro Burger</a>
+    <nav aria-label="Principal">
+      <a href="#cardapio">Cardápio</a>
+      <a href="#cores">Cores e WCAG</a>
+      <a href="#contato">Contato</a>
+    </nav>
+    <div class="tools">
+      <span class="cartpill" id="cart" aria-live="polite">Pedido: 0 itens · R$ 0,00</span>
+      <button class="btn ghost sm" id="a11yBtn" aria-expanded="false" aria-controls="a11yPanel">Acessibilidade</button>
+      <button class="btn sm" id="loginBtn">Entrar</button>
+    </div>
+    <div class="a11y" id="a11yPanel" role="region" aria-label="Opções de acessibilidade" hidden>
+      <h2>Acessibilidade</h2>
+      <div>
+        <small>Tema</small>
+        <div class="seg" id="themeSeg">
+          <button type="button" data-v="system" aria-pressed="true">Sistema</button>
+          <button type="button" data-v="light" aria-pressed="false">Claro</button>
+          <button type="button" data-v="dark" aria-pressed="false">Escuro</button>
+        </div>
+      </div>
+      <div>
+        <small>Tamanho da fonte</small>
+        <div class="seg" id="sizeSeg">
+          <button type="button" data-v="md" aria-pressed="true" aria-label="Fonte normal">A</button>
+          <button type="button" data-v="lg" aria-pressed="false" aria-label="Fonte grande" style="font-size:1.15rem">A+</button>
+          <button type="button" data-v="xl" aria-pressed="false" aria-label="Fonte extra grande" style="font-size:1.35rem">A++</button>
+        </div>
+      </div>
+      <label class="row"><span>Alto contraste</span><input type="checkbox" id="hc" style="width:24px;height:24px;min-height:0;accent-color:#D32F2F"></label>
+      <label class="row"><span>Reduzir animações</span><input type="checkbox" id="rm" style="width:24px;height:24px;min-height:0;accent-color:#D32F2F"></label>
+      <button type="button" class="btn ghost sm" id="reset">Restaurar padrão</button>
+    </div>
+  </div>
+</header>
+
+<main id="inicio" class="wrap">
+  <div class="carousel" role="region" aria-roledescription="carrossel" aria-label="Lançamentos e promoções">
+    <div class="track" id="track" aria-live="off"></div>
+    <div class="ctrls">
+      <button type="button" id="prev" aria-label="Slide anterior">‹</button>
+      <div class="dots" id="dots"></div>
+      <button type="button" id="next" aria-label="Próximo slide">›</button>
+      <button type="button" id="play" aria-label="Pausar rotação automática">❚❚</button>
+    </div>
+  </div>
+
+  <section class="s" id="cardapio" aria-labelledby="h-menu">
+    <p class="eyebrow">Cardápio</p>
+    <h2 id="h-menu">Monte o seu pedido</h2>
+    <p class="lead">Busque pelo nome ou ingrediente, ou filtre por categoria. Os cartões atualizam enquanto você digita.</p>
+    <div class="menu-tools">
+      <div class="search">
+        <label for="q" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Buscar no cardápio</label>
+        <input id="q" type="search" placeholder="Buscar: bacon, cheddar, batata…" autocomplete="off">
+      </div>
+      <div class="tabs" role="tablist" aria-label="Categorias" id="tabs"></div>
+    </div>
+    <p id="count" class="lead" style="margin:0 0 1rem" role="status"></p>
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+
+<div class="alt">
+  <section class="s wrap" id="cores" aria-labelledby="h-cores">
+    <p class="eyebrow">Identidade visual</p>
+    <h2 id="h-cores">Por que vermelho, branco e preto</h2>
+    <p class="lead">Cada cor tem uma função no site. Os valores de contraste abaixo são calculados na hora pela fórmula da WCAG 2.2.</p>
+    <div class="swatches">
+      <article class="sw">
+        <div class="chip" style="background:#D32F2F;color:#fff">Vermelho #D32F2F</div>
+        <div class="txt"><h3>Apetite e ação</h3><p>Acelera o ritmo, chama atenção e conduz o olhar para botões de pedido e promoções.</p></div>
+      </article>
+      <article class="sw">
+        <div class="chip" style="background:#FFFFFF;color:#121212">Branco #FFFFFF</div>
+        <div class="txt"><h3>Higiene e respiro</h3><p>Transmite limpeza e credibilidade. Funciona como espaço negativo para destacar os produtos.</p></div>
+      </article>
+      <article class="sw">
+        <div class="chip" style="background:#121212;color:#fff">Preto #121212</div>
+        <div class="txt"><h3>Solidez e valor</h3><p>Dá um ar mais artesanal e premium e estrutura o modo escuro.</p></div>
+      </article>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <caption style="position:absolute;left:-999px">Análise de contraste das combinações de cores</caption>
+        <thead><tr><th>Combinação</th><th>Exemplo</th><th>Razão</th><th>AA texto</th><th>AA texto grande</th><th>AAA texto</th></tr></thead>
+        <tbody id="contrast"></tbody>
+      </table>
+    </div>
+    <div class="tips">
+      <div><b>Texto pequeno em modo escuro</b><span>O vermelho #D32F2F sobre #121212 não alcança 4,5:1. Por isso o texto vermelho usa um tom mais claro no tema escuro.</span></div>
+      <div><b>Botões</b><span>Texto branco sobre #D32F2F passa no nível AA em ambos os temas.</span></div>
+      <div><b>Mais do que cor</b><span>Foco visível, rótulos em todos os campos, alvos de 44 px e opção de reduzir animações.</span></div>
+    </div>
+  </section>
+</div>
+
+<section class="s wrap" id="contato" aria-labelledby="h-contato">
+  <div class="contact">
+    <div>
+      <p class="eyebrow">Contato</p>
+      <h2 id="h-contato">Fale com a gente</h2>
+      <p class="lead">Dúvidas, sugestões ou suporte. Preencha o formulário e escolha o assunto.</p>
+      <p class="lead" style="margin-top:1.5rem"><b style="color:var(--fg)">Horário:</b> todos os dias, 11h às 23h.<br><b style="color:var(--fg)">Endereço:</b> Av. Exemplo, 1234, Centro (endereço fictício).</p>
+    </div>
+    <form id="contactForm" novalidate>
+      <div class="field"><label for="cn">Nome</label><input id="cn" name="nome" autocomplete="name" aria-describedby="cn-e" required><span class="err" id="cn-e"></span></div>
+      <div class="field"><label for="ce">E-mail</label><input id="ce" name="email" type="email" autocomplete="email" aria-describedby="ce-e" required><span class="err" id="ce-e"></span></div>
+      <div class="field"><label for="cs">Assunto</label>
+        <select id="cs" name="assunto" aria-describedby="cs-e" required>
+          <option value="">Selecione</option><option>Dúvida sobre o cardápio</option><option>Sugestão</option><option>Suporte ao pedido</option><option>Elogio ou reclamação</option>
+        </select><span class="err" id="cs-e"></span></div>
+      <div class="field"><label for="cm">Mensagem</label><textarea id="cm" name="mensagem" rows="5" aria-describedby="cm-e" required></textarea><span class="err" id="cm-e"></span></div>
+      <button class="btn" type="submit">Enviar mensagem</button>
+      <div id="formOk" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="cols">
+    <div><a class="logo" style="color:#fff" href="#inicio"><i aria-hidden="true"></i>Rubro Burger</a><p style="margin-top:.8rem">Hambúrguer na chapa, batata crocante e promoção todo dia.</p></div>
+    <div><h3>Horário</h3><ul><li>Seg a Qui: 11h às 23h</li><li>Sex a Dom: 11h à 1h</li></ul></div>
+    <div><h3>Links</h3><ul><li><a href="#cardapio">Cardápio</a></li><li><a href="#cores">Cores e WCAG</a></li><li><a href="#contato">Contato</a></li></ul></div>
+    <div><h3>Redes</h3><ul><li>Instagram: @rubroburger</li><li>TikTok: @rubroburger</li><li>WhatsApp: (00) 00000-0000</li></ul></div>
+  </div>
+  <p class="copy">© 2026 Rubro Burger. Projeto acadêmico de Desenvolvimento de Interfaces. Marca, endereço e contatos são fictícios.</p>
+</footer>
+
+<dialog id="login" aria-labelledby="lg-t">
+  <div class="dhead"><div><h2 id="lg-t">Entrar</h2><p class="lead" style="margin-top:0">Acesse sua conta para ver promoções.</p></div><button class="x" type="button" id="lgClose" aria-label="Fechar">✕</button></div>
+  <form id="loginForm" novalidate style="margin-top:1rem">
+    <div class="field"><label for="le">E-mail ou usuário</label><input id="le" autocomplete="username" aria-describedby="le-e" required><span class="err" id="le-e"></span></div>
+    <div class="field"><label for="lp">Senha</label><input id="lp" type="password" autocomplete="current-password" aria-describedby="lp-e" required><span class="err" id="lp-e"></span></div>
+    <label class="checks" for="lr"><input type="checkbox" id="lr"> Lembrar-me</label>
+    <button class="btn" type="submit">Entrar</button>
+    <a href="#contato" id="forgot">Esqueci minha senha</a>
+    <div id="loginOk" role="status" aria-live="polite"></div>
+  </form>
+</dialog>
+<div id="toast" class="toast" role="status" hidden></div>
+<script>
+/* ---------- util ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const brl=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+/* ---------- ilustrações SVG dos produtos ---------- */
+const C={bun:"#E8A33D",bunD:"#C98322",pat:"#5B2E1B",ch:"#FFC83D",let:"#6BAA3A",tom:"#D32F2F",bac:"#B5483A",box:"#D32F2F",fry:"#F7C948",cup:"#FFFFFF",ink:"#121212"};
+function burger({cheese=1,double=0,bacon=0,tomato=1}={}){
+  let y=104,s="";
+  s+=`<path d="M40 ${y}h120a8 8 0 0 1 0 16a14 14 0 0 1-14 8H54a14 14 0 0 1-14-8a8 8 0 0 1 0-16z" fill="${C.bun}"/>`;y-=14;
+  const patty=()=>{s+=`<rect x="36" y="${y}" width="128" height="16" rx="8" fill="${C.pat}"/>`;y-=14;
+    if(cheese)s+=`<path d="M40 ${y+8}h120l-14 14l-14-8l-14 10l-14-10l-14 8l-14-8z" fill="${C.ch}"/>`};
+  patty(); if(double){s+=`<path d="M38 ${y+6}q10-8 20 0t20 0t20 0t20 0t20 0t20 0v8h-120z" fill="${C.let}"/>`;y-=8;patty()}
+  if(bacon){s+=`<path d="M34 ${y+10}q12-10 24 0t24 0t24 0t24 0t24 0v6h-120z" fill="${C.bac}"/>`;y-=8}
+  if(tomato){s+=`<rect x="42" y="${y+4}" width="116" height="8" rx="4" fill="${C.tom}"/>`;y-=6}
+  s+=`<path d="M36 ${y+8}q10-10 21 0t21 0t21 0t21 0t21 0v8h-105z" fill="${C.let}"/>`;y-=2;
+  const top=y-4;
+  s+=`<path d="M38 ${y+6}c0-40 20-52 62-52s62 12 62 52z" fill="${C.bun}" transform="translate(0 ${top-y+50-50+0})"/>`;
+  return s}
+function fries(){let s="";const xs=[62,76,90,104,118,132];xs.forEach((x,i)=>s+=`<rect x="${x}" y="${28+(i%3)*8}" width="10" height="62" rx="3" fill="${C.fry}" transform="rotate(${(i-2.5)*5} ${x+5} 90)"/>`);
+  return s+`<path d="M52 82h96l-10 50H62z" fill="${C.box}"/><rect x="48" y="78" width="104" height="10" rx="3" fill="#B71C1C"/><circle cx="100" cy="106" r="9" fill="#fff"/>`}
+function drink(){return `<rect x="96" y="6" width="8" height="40" rx="3" fill="${C.box}" transform="rotate(12 100 26)"/><path d="M66 40h68l-9 90H75z" fill="${C.cup}" stroke="#D8D0D0" stroke-width="2"/><path d="M69 70h62l-3 30H72z" fill="${C.box}"/><rect x="62" y="34" width="76" height="10" rx="4" fill="#121212"/>`}
+function dessert(){return `<path d="M72 74h56l-28 56z" fill="#E8A33D"/><circle cx="100" cy="60" r="30" fill="#FBD5D5"/><circle cx="84" cy="48" r="20" fill="#F6F0E4"/><circle cx="116" cy="48" r="20" fill="#5B2E1B"/><circle cx="100" cy="24" r="8" fill="${C.tom}"/>`}
+const svg=(inner,vb="0 -14 200 154")=>`<svg viewBox="${vb}" role="img" aria-hidden="true" focusable="false">${inner}</svg>`;
+const art={
+  burger:o=>svg(burger(o)),
+  fries:()=>svg(fries()),drink:()=>svg(drink()),dessert:()=>svg(dessert()),
+  combo:o=>svg(`<g transform="translate(-34 0) scale(.82)">${burger(o)}</g><g transform="translate(88 28) scale(.58)">${fries()}</g><g transform="translate(130 36) scale(.55)">${drink()}</g>`)
+};
+
+/* ---------- dados ---------- */
+const P=[
+ {n:"Clássico Rubro",c:"Burgers",d:"Pão brioche, blend 150 g, queijo prato, alface, tomate e molho da casa.",p:24.9,a:"burger",o:{}},
+ {n:"Cheddar Duplo",c:"Burgers",d:"Dois blends de 120 g, cheddar cremoso, cebola caramelizada e picles.",p:32.9,a:"burger",o:{double:1}},
+ {n:"Bacon Black",c:"Burgers",d:"Blend 150 g, bacon crocante, cheddar e maionese defumada no pão preto.",p:34.9,a:"burger",o:{bacon:1}},
+ {n:"Veggie Brasa",c:"Burgers",d:"Hambúrguer de grão-de-bico e beterraba, rúcula, tomate e molho de ervas.",p:27.9,a:"burger",o:{cheese:0}},
+ {n:"Combo Clássico",c:"Combos",d:"Clássico Rubro, batata média e refrigerante 400 ml.",p:39.9,a:"combo",o:{}},
+ {n:"Combo Duplo Bacon",c:"Combos",d:"Cheddar Duplo com bacon, batata grande e refrigerante 500 ml.",p:52.9,a:"combo",o:{double:1,bacon:1}},
+ {n:"Combo Kids",c:"Combos",d:"Mini burger, batata pequena, suco e brinde surpresa.",p:29.9,a:"combo",o:{tomato:0}},
+ {n:"Batata Crocante",c:"Acompanhamentos",d:"Porção média, sal e páprica. Acompanha molho à escolha.",p:14.9,a:"fries"},
+ {n:"Batata com Cheddar e Bacon",c:"Acompanhamentos",d:"Batata coberta com cheddar cremoso e farofa de bacon.",p:22.9,a:"fries"},
+ {n:"Refrigerante 500 ml",c:"Bebidas",d:"Cola, guaraná ou limão. Gelado, com refil no salão.",p:8.9,a:"drink"},
+ {n:"Milkshake de Morango",c:"Bebidas",d:"Sorvete de creme, calda de morango e chantilly.",p:19.9,a:"drink"},
+ {n:"Sundae Chocolate",c:"Sobremesas",d:"Sorvete de creme, calda de chocolate e cereja.",p:12.9,a:"dessert"}
+];
+const cats=["Todos",...new Set(P.map(p=>p.c))];
+
+/* ---------- carrossel ---------- */
+const S=[
+ {tag:"Lançamento",t:"Bacon Black",x:"Pão preto, bacon crocante e cheddar. Disponível a partir de hoje.",b:"Ver no cardápio",art:art.burger({bacon:1})},
+ {tag:"Combo do dia",t:"Duplo + batata + refri",x:"Cheddar Duplo com batata grande e bebida por R$ 49,90.",b:"Pedir combo",art:art.combo({double:1})},
+ {tag:"Promoção",t:"Sundae a R$ 9,90",x:"Na compra de qualquer combo, o Sundae Chocolate sai com desconto.",b:"Aproveitar",art:art.dessert()}
+];
+$("#track").innerHTML=S.map((s,i)=>`<article class="slide" role="group" aria-roledescription="slide" aria-label="${i+1} de ${S.length}"><div><span class="tag">${s.tag}</span><h1>${s.t}</h1><p>${s.x}</p><a class="btn" href="#cardapio">${s.b}</a></div>${s.art}</article>`).join("");
+$("#dots").innerHTML=S.map((_,i)=>`<button type="button" aria-label="Ir para o slide ${i+1}"></button>`).join("");
+let cur=0,timer=null,playing=true;
+const motionOff=()=>document.documentElement.dataset.motion==="off"||matchMedia("(prefers-reduced-motion: reduce)").matches;
+function go(i){cur=(i+S.length)%S.length;$("#track").style.transform=`translateX(-${cur*100}%)`;
+  $$("#dots button").forEach((b,j)=>j===cur?b.setAttribute("aria-current","true"):b.removeAttribute("aria-current"));
+  $$(".slide").forEach((s,j)=>s.inert=j!==cur)}
+function sched(){clearInterval(timer);if(playing&&!motionOff())timer=setInterval(()=>go(cur+1),5500)}
+function setPlay(v){playing=v;$("#play").textContent=v?"❚❚":"▶";$("#play").setAttribute("aria-label",v?"Pausar rotação automática":"Retomar rotação automática");$("#track").setAttribute("aria-live",v?"off":"polite");sched()}
+$("#prev").onclick=()=>{go(cur-1);sched()};$("#next").onclick=()=>{go(cur+1);sched()};
+$$("#dots button").forEach((b,i)=>b.onclick=()=>{go(i);sched()});
+$("#play").onclick=()=>setPlay(!playing);
+$(".carousel").addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){go(cur-1);sched()}if(e.key==="ArrowRight"){go(cur+1);sched()}});
+go(0);sched();
+
+/* ---------- cardápio ---------- */
+let cat="Todos",items=0,total=0;
+const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+$("#tabs").innerHTML=cats.map((c,i)=>`<button type="button" role="tab" id="tab${i}" aria-selected="${c===cat}" tabindex="${c===cat?0:-1}" data-c="${c}">${c}</button>`).join("");
+function render(){
+  const q=norm($("#q").value.trim());
+  const list=P.filter(p=>(cat==="Todos"||p.c===cat)&&(!q||norm(p.n+" "+p.d+" "+p.c).includes(q)));
+  $("#count").textContent=list.length?`${list.length} ${list.length===1?"item encontrado":"itens encontrados"}`:"";
+  $("#grid").innerHTML=list.length?list.map(p=>`<article class="card"><div class="pic">${art[p.a](p.o||{})}</div><div class="body"><span class="cat">${p.c}</span><h3>${p.n}</h3><p>${p.d}</p><div class="foot"><span class="price">${brl(p.p)}</span><button class="btn sm" type="button" data-add="${p.n}" aria-label="Adicionar ${p.n} ao pedido">Adicionar</button></div></div></article>`).join(""):`<div class="empty" style="grid-column:1/-1">Nenhum item encontrado para "${$("#q").value.replace(/[<>&]/g,"")}". Tente outro ingrediente ou escolha "Todos".</div>`;
+}
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cat=b.dataset.c;$$("#tabs button").forEach(x=>{const on=x===b;x.setAttribute("aria-selected",on);x.tabIndex=on?0:-1});render()});
+$("#tabs").addEventListener("keydown",e=>{const t=$$("#tabs button"),i=t.indexOf(document.activeElement);if(i<0)return;
+  let n=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?t.length-1:null;
+  if(n===null)return;e.preventDefault();n=(n+t.length)%t.length;t[n].focus();t[n].click()});
+$("#q").addEventListener("input",render);
+$("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-add]");if(!b)return;const p=P.find(x=>x.n===b.dataset.add);items++;total+=p.p;
+  $("#cart").textContent=`Pedido: ${items} ${items===1?"item":"itens"} · ${brl(total)}`;toast(`${p.n} adicionado ao pedido`)});
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2200)}
+render();
+
+/* ---------- contraste WCAG ---------- */
+const lum=h=>{const v=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(c=>c<=.03928?c/12.92:((c+.055)/1.055)**2.4);return .2126*v[0]+.7152*v[1]+.0722*v[2]};
+const ratio=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const pairs=[["Texto preto sobre branco","#121212","#FFFFFF"],["Texto branco sobre preto","#FFFFFF","#121212"],["Texto branco sobre vermelho (botões)","#FFFFFF","#D32F2F"],["Vermelho sobre branco (links, claro)","#D32F2F","#FFFFFF"],["Vermelho #C62828 sobre branco (texto usado)","#C62828","#FFFFFF"],["Vermelho #D32F2F sobre preto","#D32F2F","#121212"],["Vermelho claro #FF7B7B sobre preto (escuro)","#FF7B7B","#121212"]];
+$("#contrast").innerHTML=pairs.map(([n,f,b])=>{const r=ratio(f,b),y=v=>`<span class="badge ${v?"ok":"no"}">${v?"Passa":"Falha"}</span>`;
+  return `<tr><td>${n}</td><td><span class="demo" style="color:${f};background:${b};border:1px solid #8884">Aa Hambúrguer</span></td><td><b>${r.toFixed(2).replace(".",",")}:1</b></td><td>${y(r>=4.5)}</td><td>${y(r>=3)}</td><td>${y(r>=7)}</td></tr>`}).join("");
+
+/* ---------- acessibilidade ---------- */
+const root=document.documentElement;
+function press(seg,v){$$(`#${seg} button`).forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===v))}
+function apply(k,v){
+  if(k==="theme"){v==="system"?root.removeAttribute("data-theme"):root.dataset.theme=v;press("themeSeg",v)}
+  if(k==="size"){v==="md"?root.removeAttribute("data-size"):root.dataset.size=v;press("sizeSeg",v)}
+  if(k==="hc"){v==="1"?root.dataset.contrast="high":root.removeAttribute("data-contrast");$("#hc").checked=v==="1"}
+  if(k==="rm"){v==="1"?root.dataset.motion="off":root.removeAttribute("data-motion");$("#rm").checked=v==="1";sched()}
+}
+const def={theme:"system",size:"md",hc:"0",rm:"0"};
+Object.keys(def).forEach(k=>apply(k,store.get("rb-"+k)||def[k]));
+$("#themeSeg").onclick=e=>{const b=e.target.closest("button");if(b){apply("theme",b.dataset.v);store.set("rb-theme",b.dataset.v)}};
+$("#sizeSeg").onclick=e=>{const b=e.target.closest("button");if(b){apply("size",b.dataset.v);store.set("rb-size",b.dataset.v)}};
+$("#hc").onchange=e=>{apply("hc",e.target.checked?"1":"0");store.set("rb-hc",e.target.checked?"1":"0")};
+$("#rm").onchange=e=>{apply("rm",e.target.checked?"1":"0");store.set("rb-rm",e.target.checked?"1":"0")};
+$("#reset").onclick=()=>Object.keys(def).forEach(k=>{apply(k,def[k]);store.set("rb-"+k,def[k])});
+const panel=$("#a11yPanel"),btn=$("#a11yBtn");
+function togglePanel(o){panel.hidden=!o;btn.setAttribute("aria-expanded",o)}
+btn.onclick=()=>togglePanel(panel.hidden);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!panel.hidden){togglePanel(false);btn.focus()}});
+document.addEventListener("click",e=>{if(!panel.hidden&&!e.target.closest(".pos"))togglePanel(false)});
+
+/* ---------- formulários ---------- */
+function setErr(id,m){const el=$("#"+id),er=$("#"+id+"-e");er.textContent=m||"";m?el.setAttribute("aria-invalid","true"):el.removeAttribute("aria-invalid");return !m}
+const mail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+$("#contactForm").addEventListener("submit",e=>{e.preventDefault();
+  const n=$("#cn").value.trim(),m=$("#ce").value.trim(),s=$("#cs").value,t=$("#cm").value.trim();
+  const ok=[setErr("cn",n.length<3?"Informe seu nome com pelo menos 3 letras.":""),
+    setErr("ce",!mail(m)?"Informe um e-mail válido, como nome@exemplo.com.":""),
+    setErr("cs",!s?"Escolha um assunto.":""),
+    setErr("cm",t.length<10?"Escreva pelo menos 10 caracteres.":"")];
+  const box=$("#formOk");
+  if(ok.every(Boolean)){box.innerHTML=`<div class="ok-msg">Obrigado, ${n.split(" ")[0].replace(/[<>&]/g,"")}. Sua mensagem passou na validação. Este é um protótipo acadêmico e nenhum e-mail é enviado.</div>`;e.target.reset()}
+  else{box.innerHTML="";e.target.querySelector("[aria-invalid]").focus()}});
+const dlg=$("#login");
+$("#loginBtn").onclick=()=>{$("#loginOk").innerHTML="";dlg.showModal?dlg.showModal():dlg.setAttribute("open","")};
+$("#lgClose").onclick=()=>dlg.close();
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
+$("#forgot").onclick=()=>dlg.close();
+$("#loginForm").addEventListener("submit",e=>{e.preventDefault();
+  const u=$("#le").value.trim(),p=$("#lp").value;
+  const ok=[setErr("le",u.length<3?"Informe seu e-mail ou usuário.":""),setErr("lp",p.length<6?"A senha tem pelo menos 6 caracteres.":"")];
+  if(ok.every(Boolean)){$("#loginOk").innerHTML=`<div class="ok-msg">Login simulado como ${u.replace(/[<>&]/g,"")}. Este protótipo não autentica de verdade.</div>`;$("#lp").value=""}
+  else e.target.querySelector("[aria-invalid]").focus()});
+</script>
+</body>
+</html>
